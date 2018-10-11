@@ -1,0 +1,81 @@
+/* Query 1 - Usada para a Pergunta 1 */
+
+SELECT
+	c.Country AS Pais,
+	COUNT(il.Quantity) AS TotalMusicas
+FROM InvoiceLine AS il
+JOIN Invoice as i
+ON i.InvoiceId = il.InvoiceId
+JOIN Customer AS c
+ON c.CustomerId - i.CustomerID
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 5;
+
+
+
+/* Query 2 - Usada para Pergunta 2 */
+
+/* Seleciona os cinco países que mais compram */
+WITH t1 AS (
+	SELECT
+		c.Country,
+		SUM(il.Quantity * il.UnitPrice) AS ValorTotal
+	FROM InvoiceLine AS il
+	JOIN Invoice as i
+	ON i.InvoiceId = il.InvoiceId
+	JOIN Customer AS c
+	ON c.CustomerId - i.CustomerID
+	GROUP BY 1
+	ORDER BY 2 DESC
+	LIMIT 5)
+-- Seleciona os totais de vendas para os 5 paises 
+SELECT
+		strftime('%Y', i.InvoiceDate) AS Ano,
+		c.Country,
+		ROUND(SUM(il.Quantity * il.UnitPrice)) AS ValorTotal
+FROM InvoiceLine AS il
+JOIN Invoice as i
+ON i.InvoiceId = il.InvoiceId
+JOIN Customer AS c
+ON c.CustomerId - i.CustomerID
+JOIN t1
+ON t1.Country = c.Country
+GROUP BY 1, 2
+ORDER BY 1 DESC;
+
+
+
+/* Query 3 - Usada para Pergunta 3 */
+
+SELECT
+	g.Name as GeneroMusica,
+	SUM(il.Quantity) AS QuantidadeVendida
+FROM InvoiceLine AS il
+JOIN Track as t
+ON t.TrackId = il.TrackId
+JOIN Genre AS g
+ON g.GenreId = t.GenreId
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 5;
+
+
+
+/* Query 4 - Usada para Pergunta 4 */
+
+SELECT
+	c.Country AS Pais,
+	SUM(il.Quantity) AS Quantidade
+FROM InvoiceLine AS il
+JOIN Track as t
+ON t.TrackId = il.TrackId
+JOIN Genre as g
+ON g.GenreID = t.GenreId
+JOIN Invoice AS i
+ON i.InvoiceId = il.InvoiceId
+JOIN Customer as c
+ON c.CustomerId = i.InvoiceId
+WHERE g.Name = 'Rock'
+GROUP BY 1
+ORDER BY 2 DESC;
